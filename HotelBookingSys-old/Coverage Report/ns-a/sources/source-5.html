@@ -1,0 +1,432 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > InvoiceServiceImpl</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.example.bookingsystem.service.impl</a>
+</div>
+
+<h1>Coverage Summary for Class: InvoiceServiceImpl (com.example.bookingsystem.service.impl)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">InvoiceServiceImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/208)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package com.example.bookingsystem.service.impl;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import com.example.bookingsystem.domain.*;
+<i class="no-highlight">4</i>&nbsp;import com.example.bookingsystem.domain.catalog.Facility;
+<i class="no-highlight">5</i>&nbsp;import com.example.bookingsystem.service.BookingService;
+<i class="no-highlight">6</i>&nbsp;import com.example.bookingsystem.service.InvoiceService;
+<i class="no-highlight">7</i>&nbsp;import com.lowagie.text.*;
+<i class="no-highlight">8</i>&nbsp;import com.lowagie.text.pdf.PdfPCell;
+<i class="no-highlight">9</i>&nbsp;import com.lowagie.text.pdf.PdfPTable;
+<i class="no-highlight">10</i>&nbsp;import com.lowagie.text.pdf.PdfWriter;
+<i class="no-highlight">11</i>&nbsp;import lombok.extern.slf4j.Slf4j;
+<i class="no-highlight">12</i>&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+<i class="no-highlight">13</i>&nbsp;import org.springframework.stereotype.Service;
+<i class="no-highlight">14</i>&nbsp;import org.springframework.transaction.annotation.Transactional;
+<i class="no-highlight">15</i>&nbsp;
+<i class="no-highlight">16</i>&nbsp;import javax.servlet.http.HttpServletResponse;
+<i class="no-highlight">17</i>&nbsp;import java.io.IOException;
+<i class="no-highlight">18</i>&nbsp;import java.time.LocalDate;
+<i class="no-highlight">19</i>&nbsp;import java.time.Period;
+<i class="no-highlight">20</i>&nbsp;import java.util.List;
+<i class="no-highlight">21</i>&nbsp;
+<i class="no-highlight">22</i>&nbsp;
+<i class="no-highlight">23</i>&nbsp;@Service
+<i class="no-highlight">24</i>&nbsp;@Transactional
+<b class="nc"><i class="no-highlight">25</i>&nbsp;@Slf4j</b>
+<b class="nc"><i class="no-highlight">26</i>&nbsp;public class InvoiceServiceImpl implements InvoiceService {</b>
+<i class="no-highlight">27</i>&nbsp;    private static final String breaker = &quot;------------------------------------------------------------------------&quot;;
+<b class="nc"><i class="no-highlight">28</i>&nbsp;    private int invoiceCounter = 0;</b>
+<i class="no-highlight">29</i>&nbsp;
+<i class="no-highlight">30</i>&nbsp;    @Autowired
+<i class="no-highlight">31</i>&nbsp;    private BookingService bookingService;
+<i class="no-highlight">32</i>&nbsp;
+<i class="no-highlight">33</i>&nbsp;    @Override
+<i class="no-highlight">34</i>&nbsp;    public void printInvoice(HttpServletResponse httpServletResponse, Long bookingId) {
+<b class="nc"><i class="no-highlight">35</i>&nbsp;        log.debug(&quot;Booking Id: &quot; + bookingId);</b>
+<i class="no-highlight">36</i>&nbsp;
+<b class="nc"><i class="no-highlight">37</i>&nbsp;        Booking booking = bookingService.getBookingById(bookingId);</b>
+<b class="nc"><i class="no-highlight">38</i>&nbsp;        log.debug(&quot;Booking: &quot; + booking);</b>
+<i class="no-highlight">39</i>&nbsp;
+<b class="nc"><i class="no-highlight">40</i>&nbsp;        String headerKey = &quot;Content-Disposition&quot;;</b>
+<b class="nc"><i class="no-highlight">41</i>&nbsp;        String headerValue = &quot;attachment; filename=invoice_&quot; + booking.getUser().getUsername() + &quot;_&quot; + LocalDate.now() + &quot;.pdf&quot;;</b>
+<b class="nc"><i class="no-highlight">42</i>&nbsp;        log.debug(headerValue);</b>
+<i class="no-highlight">43</i>&nbsp;
+<b class="nc"><i class="no-highlight">44</i>&nbsp;        httpServletResponse.setHeader(headerKey, headerValue);</b>
+<b class="nc"><i class="no-highlight">45</i>&nbsp;        printInvoicePdf(httpServletResponse, booking);</b>
+<i class="no-highlight">46</i>&nbsp;    }
+<i class="no-highlight">47</i>&nbsp;
+<i class="no-highlight">48</i>&nbsp;    private void printInvoicePdf(HttpServletResponse httpServletResponse, Booking booking) {
+<b class="nc"><i class="no-highlight">49</i>&nbsp;        Double totalRoomCost = 0.0;</b>
+<b class="nc"><i class="no-highlight">50</i>&nbsp;        Double totalFacilityCost = 0.0;</b>
+<i class="no-highlight">51</i>&nbsp;
+<b class="nc"><i class="no-highlight">52</i>&nbsp;        Document document = new Document(PageSize.A4);</b>
+<i class="no-highlight">53</i>&nbsp;
+<b class="nc"><i class="no-highlight">54</i>&nbsp;        Font fontTitle = FontFactory.getFont(FontFactory.HELVETICA_BOLD);</b>
+<b class="nc"><i class="no-highlight">55</i>&nbsp;        fontTitle.setSize(18);</b>
+<b class="nc"><i class="no-highlight">56</i>&nbsp;        Font fontParagraph = FontFactory.getFont(FontFactory.HELVETICA);</b>
+<b class="nc"><i class="no-highlight">57</i>&nbsp;        fontTitle.setSize(12);</b>
+<i class="no-highlight">58</i>&nbsp;
+<b class="nc"><i class="no-highlight">59</i>&nbsp;        List&lt;Room&gt; bookedRooms = booking.getBookedRooms();</b>
+<b class="nc"><i class="no-highlight">60</i>&nbsp;        log.debug(&quot;Booked Rooms: &quot; + bookedRooms);</b>
+<i class="no-highlight">61</i>&nbsp;
+<b class="nc"><i class="no-highlight">62</i>&nbsp;        User user = booking.getUser();</b>
+<b class="nc"><i class="no-highlight">63</i>&nbsp;        log.debug(&quot;User: &quot; + user);</b>
+<i class="no-highlight">64</i>&nbsp;
+<b class="nc"><i class="no-highlight">65</i>&nbsp;        List&lt;Guest&gt; bookedRoomsGuest = booking.getBookedRoomsGuest();</b>
+<b class="nc"><i class="no-highlight">66</i>&nbsp;        log.debug(&quot;Booked Rooms Guest: &quot; + bookedRoomsGuest);</b>
+<i class="no-highlight">67</i>&nbsp;
+<b class="nc"><i class="no-highlight">68</i>&nbsp;        List&lt;Facility&gt; facilities = booking.getCatalog().getCatalogFacilities();</b>
+<b class="nc"><i class="no-highlight">69</i>&nbsp;        log.debug(&quot;Facilities: &quot; + facilities);</b>
+<i class="no-highlight">70</i>&nbsp;
+<b class="nc"><i class="no-highlight">71</i>&nbsp;        Payment payment = booking.getPayment();</b>
+<b class="nc"><i class="no-highlight">72</i>&nbsp;        log.debug(&quot;Payment: &quot; + payment);</b>
+<i class="no-highlight">73</i>&nbsp;
+<i class="no-highlight">74</i>&nbsp;        try {
+<b class="nc"><i class="no-highlight">75</i>&nbsp;            PdfWriter.getInstance(document, httpServletResponse.getOutputStream());</b>
+<b class="nc"><i class="no-highlight">76</i>&nbsp;            document.open();</b>
+<b class="nc"><i class="no-highlight">77</i>&nbsp;            Paragraph spacer = new Paragraph(breaker);</b>
+<i class="no-highlight">78</i>&nbsp;
+<b class="nc"><i class="no-highlight">79</i>&nbsp;            printInvoiceHeader(document, spacer, fontTitle, fontParagraph);</b>
+<b class="nc"><i class="no-highlight">80</i>&nbsp;            printBookingDetails(document, spacer, booking, fontTitle);</b>
+<b class="nc"><i class="no-highlight">81</i>&nbsp;            printRoomDetails(document, spacer, bookedRooms, fontTitle);</b>
+<b class="nc"><i class="no-highlight">82</i>&nbsp;            printGuestsDetails(document, spacer, bookedRoomsGuest, fontTitle);</b>
+<b class="nc"><i class="no-highlight">83</i>&nbsp;            printFacilitiesDetails(document, spacer, facilities, fontTitle);</b>
+<b class="nc"><i class="no-highlight">84</i>&nbsp;            printTotalCostOfBooking(document, spacer, totalRoomCost, totalFacilityCost, booking, fontTitle);</b>
+<i class="no-highlight">85</i>&nbsp;
+<b class="nc"><i class="no-highlight">86</i>&nbsp;            if (booking.getIsPaymentMade()) {</b>
+<b class="nc"><i class="no-highlight">87</i>&nbsp;                printPaymentDetails(document, spacer, payment, fontTitle);</b>
+<i class="no-highlight">88</i>&nbsp;            }
+<i class="no-highlight">89</i>&nbsp;
+<b class="nc"><i class="no-highlight">90</i>&nbsp;            printBillingTo(document, user, fontTitle, fontParagraph);</b>
+<b class="nc"><i class="no-highlight">91</i>&nbsp;            log.info(&quot;Pdf generated successfully&quot;);</b>
+<b class="nc"><i class="no-highlight">92</i>&nbsp;        } catch (IOException e) {</b>
+<b class="nc"><i class="no-highlight">93</i>&nbsp;            log.error(&quot;Error creating pdf: &quot; + e.getMessage());</b>
+<i class="no-highlight">94</i>&nbsp;        } finally {
+<b class="nc"><i class="no-highlight">95</i>&nbsp;            document.close();</b>
+<b class="nc"><i class="no-highlight">96</i>&nbsp;        }</b>
+<i class="no-highlight">97</i>&nbsp;    }
+<i class="no-highlight">98</i>&nbsp;
+<i class="no-highlight">99</i>&nbsp;    private void printPaymentDetails(Document document, Paragraph spacer, Payment payment, Font fontTitle) {
+<b class="nc"><i class="no-highlight">100</i>&nbsp;        Paragraph paymentDetailsHeading = new Paragraph(&quot;Payment Details&quot;, fontTitle);</b>
+<i class="no-highlight">101</i>&nbsp;
+<b class="nc"><i class="no-highlight">102</i>&nbsp;        PdfPTable table = new PdfPTable(4);</b>
+<b class="nc"><i class="no-highlight">103</i>&nbsp;        table.setWidthPercentage(100f);</b>
+<b class="nc"><i class="no-highlight">104</i>&nbsp;        table.setWidths(new int[] { 2, 2, 2, 2 });</b>
+<b class="nc"><i class="no-highlight">105</i>&nbsp;        table.setSpacingBefore(5);</b>
+<i class="no-highlight">106</i>&nbsp;
+<i class="no-highlight">107</i>&nbsp;        // Create Table Header
+<b class="nc"><i class="no-highlight">108</i>&nbsp;        PdfPCell cell = new PdfPCell();</b>
+<b class="nc"><i class="no-highlight">109</i>&nbsp;        cell.setPadding(5);</b>
+<i class="no-highlight">110</i>&nbsp;
+<b class="nc"><i class="no-highlight">111</i>&nbsp;        cell.setPhrase(new Phrase(&quot;Payment Id&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">112</i>&nbsp;        table.addCell(cell);</b>
+<b class="nc"><i class="no-highlight">113</i>&nbsp;        cell.setPhrase(new Phrase(&quot;Payment Made On&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">114</i>&nbsp;        table.addCell(cell);</b>
+<b class="nc"><i class="no-highlight">115</i>&nbsp;        cell.setPhrase(new Phrase(&quot;Payment Mode&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">116</i>&nbsp;        table.addCell(cell);</b>
+<b class="nc"><i class="no-highlight">117</i>&nbsp;        cell.setPhrase(new Phrase(&quot;Payment Amount&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">118</i>&nbsp;        table.addCell(cell);</b>
+<i class="no-highlight">119</i>&nbsp;
+<b class="nc"><i class="no-highlight">120</i>&nbsp;        table.addCell(String.valueOf(payment.getId()));</b>
+<b class="nc"><i class="no-highlight">121</i>&nbsp;        table.addCell(String.valueOf(payment.getPaymentDate()));</b>
+<b class="nc"><i class="no-highlight">122</i>&nbsp;        table.addCell(payment.getPaymentMode());</b>
+<b class="nc"><i class="no-highlight">123</i>&nbsp;        table.addCell(String.valueOf(payment.getTotalPaymentAmount()));</b>
+<i class="no-highlight">124</i>&nbsp;
+<b class="nc"><i class="no-highlight">125</i>&nbsp;        document.add(paymentDetailsHeading);</b>
+<b class="nc"><i class="no-highlight">126</i>&nbsp;        document.add(table);</b>
+<b class="nc"><i class="no-highlight">127</i>&nbsp;        document.add(spacer);</b>
+<b class="nc"><i class="no-highlight">128</i>&nbsp;        log.info(&quot;payment detail section generated&quot;);</b>
+<i class="no-highlight">129</i>&nbsp;    }
+<i class="no-highlight">130</i>&nbsp;
+<i class="no-highlight">131</i>&nbsp;    private void printBillingTo(Document document, User user, Font fontTitle, Font fontParagraph) {
+<b class="nc"><i class="no-highlight">132</i>&nbsp;        Paragraph billingDetailsHeading = new Paragraph(&quot;Billing To Details&quot;, fontTitle);</b>
+<b class="nc"><i class="no-highlight">133</i>&nbsp;        Paragraph userFullName = new Paragraph(user.getFirstName().toUpperCase() + &quot; &quot; + user.getLastName().toUpperCase(), fontTitle);</b>
+<b class="nc"><i class="no-highlight">134</i>&nbsp;        Paragraph userEmail = new Paragraph(user.getEmail().toUpperCase(), fontParagraph);</b>
+<b class="nc"><i class="no-highlight">135</i>&nbsp;        Paragraph userPhoneNo = new Paragraph(user.getPhone(), fontParagraph);</b>
+<i class="no-highlight">136</i>&nbsp;
+<b class="nc"><i class="no-highlight">137</i>&nbsp;        document.add(billingDetailsHeading);</b>
+<b class="nc"><i class="no-highlight">138</i>&nbsp;        document.add(userFullName);</b>
+<b class="nc"><i class="no-highlight">139</i>&nbsp;        document.add(userEmail);</b>
+<b class="nc"><i class="no-highlight">140</i>&nbsp;        document.add(userPhoneNo);</b>
+<b class="nc"><i class="no-highlight">141</i>&nbsp;        log.info(&quot;Billing To section generated&quot;);</b>
+<i class="no-highlight">142</i>&nbsp;    }
+<i class="no-highlight">143</i>&nbsp;
+<i class="no-highlight">144</i>&nbsp;    private void printTotalCostOfBooking(Document document, Paragraph spacer, Double totalRoomCost, Double totalFacilityCost, Booking booking, Font fontTitle) {
+<b class="nc"><i class="no-highlight">145</i>&nbsp;        Paragraph totalCostDetailsHeading = new Paragraph(&quot;Total Cost Details&quot;, fontTitle);</b>
+<i class="no-highlight">146</i>&nbsp;
+<b class="nc"><i class="no-highlight">147</i>&nbsp;        PdfPTable table = new PdfPTable(3);</b>
+<b class="nc"><i class="no-highlight">148</i>&nbsp;        table.setWidthPercentage(100f);</b>
+<b class="nc"><i class="no-highlight">149</i>&nbsp;        table.setWidths(new int[] { 2, 2, 2 });</b>
+<b class="nc"><i class="no-highlight">150</i>&nbsp;        table.setSpacingBefore(5);</b>
+<i class="no-highlight">151</i>&nbsp;
+<i class="no-highlight">152</i>&nbsp;        // Create Table Header
+<b class="nc"><i class="no-highlight">153</i>&nbsp;        PdfPCell cell = new PdfPCell();</b>
+<b class="nc"><i class="no-highlight">154</i>&nbsp;        cell.setPadding(5);</b>
+<i class="no-highlight">155</i>&nbsp;
+<b class="nc"><i class="no-highlight">156</i>&nbsp;        cell.setPhrase(new Phrase(&quot;Net Room Cost&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">157</i>&nbsp;        table.addCell(cell);</b>
+<b class="nc"><i class="no-highlight">158</i>&nbsp;        cell.setPhrase(new Phrase(&quot;Net Facility Cost&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">159</i>&nbsp;        table.addCell(cell);</b>
+<b class="nc"><i class="no-highlight">160</i>&nbsp;        cell.setPhrase(new Phrase(&quot;Total Net Cost&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">161</i>&nbsp;        table.addCell(cell);</b>
+<i class="no-highlight">162</i>&nbsp;
+<b class="nc"><i class="no-highlight">163</i>&nbsp;        for (Room room: booking.getBookedRooms()) {</b>
+<b class="nc"><i class="no-highlight">164</i>&nbsp;            totalRoomCost += room.getCost();</b>
+<b class="nc"><i class="no-highlight">165</i>&nbsp;        }</b>
+<i class="no-highlight">166</i>&nbsp;
+<b class="nc"><i class="no-highlight">167</i>&nbsp;        for (Facility facility: booking.getCatalog().getCatalogFacilities()) {</b>
+<b class="nc"><i class="no-highlight">168</i>&nbsp;            totalFacilityCost += facility.getPrice();</b>
+<b class="nc"><i class="no-highlight">169</i>&nbsp;        }</b>
+<i class="no-highlight">170</i>&nbsp;
+<b class="nc"><i class="no-highlight">171</i>&nbsp;        table.addCell(String.valueOf(String.format(&quot;%.2f&quot;, totalRoomCost)));</b>
+<b class="nc"><i class="no-highlight">172</i>&nbsp;        table.addCell(String.valueOf(String.format(&quot;%.2f&quot;, totalFacilityCost)));</b>
+<b class="nc"><i class="no-highlight">173</i>&nbsp;        table.addCell(String.valueOf(String.format(&quot;%.2f&quot;, totalRoomCost + totalFacilityCost)));</b>
+<i class="no-highlight">174</i>&nbsp;
+<b class="nc"><i class="no-highlight">175</i>&nbsp;        document.add(totalCostDetailsHeading);</b>
+<b class="nc"><i class="no-highlight">176</i>&nbsp;        document.add(table);</b>
+<b class="nc"><i class="no-highlight">177</i>&nbsp;        document.add(spacer);</b>
+<b class="nc"><i class="no-highlight">178</i>&nbsp;        log.info(&quot;payment detail section generated&quot;);</b>
+<i class="no-highlight">179</i>&nbsp;    }
+<i class="no-highlight">180</i>&nbsp;
+<i class="no-highlight">181</i>&nbsp;    private void printFacilitiesDetails(Document document, Paragraph spacer, List&lt;Facility&gt; facilities, Font fontTitle) {
+<b class="nc"><i class="no-highlight">182</i>&nbsp;        Paragraph facilityDetailsHeading = new Paragraph(&quot;Facility Details&quot;, fontTitle);</b>
+<i class="no-highlight">183</i>&nbsp;
+<b class="nc"><i class="no-highlight">184</i>&nbsp;        PdfPTable table = new PdfPTable(2);</b>
+<b class="nc"><i class="no-highlight">185</i>&nbsp;        table.setWidthPercentage(100f);</b>
+<b class="nc"><i class="no-highlight">186</i>&nbsp;        table.setWidths(new int[] { 2, 2 });</b>
+<b class="nc"><i class="no-highlight">187</i>&nbsp;        table.setSpacingBefore(5);</b>
+<i class="no-highlight">188</i>&nbsp;
+<i class="no-highlight">189</i>&nbsp;        // Create Table Header
+<b class="nc"><i class="no-highlight">190</i>&nbsp;        PdfPCell cell = new PdfPCell();</b>
+<b class="nc"><i class="no-highlight">191</i>&nbsp;        cell.setPadding(5);</b>
+<i class="no-highlight">192</i>&nbsp;
+<b class="nc"><i class="no-highlight">193</i>&nbsp;        cell.setPhrase(new Phrase(&quot;Facility Name&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">194</i>&nbsp;        table.addCell(cell);</b>
+<b class="nc"><i class="no-highlight">195</i>&nbsp;        cell.setPhrase(new Phrase(&quot;Facility Price&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">196</i>&nbsp;        table.addCell(cell);</b>
+<i class="no-highlight">197</i>&nbsp;
+<b class="nc"><i class="no-highlight">198</i>&nbsp;        for (Facility facility: facilities) {</b>
+<b class="nc"><i class="no-highlight">199</i>&nbsp;            table.addCell(facility.getName().toUpperCase());</b>
+<b class="nc"><i class="no-highlight">200</i>&nbsp;            table.addCell(String.valueOf(facility.getPrice()));</b>
+<b class="nc"><i class="no-highlight">201</i>&nbsp;        }</b>
+<i class="no-highlight">202</i>&nbsp;
+<b class="nc"><i class="no-highlight">203</i>&nbsp;        document.add(facilityDetailsHeading);</b>
+<b class="nc"><i class="no-highlight">204</i>&nbsp;        document.add(table);</b>
+<b class="nc"><i class="no-highlight">205</i>&nbsp;        document.add(spacer);</b>
+<b class="nc"><i class="no-highlight">206</i>&nbsp;        log.info(&quot;facility detail section generated&quot;);</b>
+<i class="no-highlight">207</i>&nbsp;    }
+<i class="no-highlight">208</i>&nbsp;
+<i class="no-highlight">209</i>&nbsp;    private void printGuestsDetails(Document document, Paragraph spacer, List&lt;Guest&gt; bookedRoomsGuest, Font fontTitle) {
+<b class="nc"><i class="no-highlight">210</i>&nbsp;        Paragraph guestDetailsHeading = new Paragraph(&quot;Guest Details&quot;, fontTitle);</b>
+<i class="no-highlight">211</i>&nbsp;
+<b class="nc"><i class="no-highlight">212</i>&nbsp;        PdfPTable table = new PdfPTable(2);</b>
+<b class="nc"><i class="no-highlight">213</i>&nbsp;        table.setWidthPercentage(100f);</b>
+<b class="nc"><i class="no-highlight">214</i>&nbsp;        table.setWidths(new int[] { 2, 2 });</b>
+<b class="nc"><i class="no-highlight">215</i>&nbsp;        table.setSpacingBefore(5);</b>
+<i class="no-highlight">216</i>&nbsp;
+<i class="no-highlight">217</i>&nbsp;        // Create Table Header
+<b class="nc"><i class="no-highlight">218</i>&nbsp;        PdfPCell cell = new PdfPCell();</b>
+<b class="nc"><i class="no-highlight">219</i>&nbsp;        cell.setPadding(5);</b>
+<i class="no-highlight">220</i>&nbsp;
+<b class="nc"><i class="no-highlight">221</i>&nbsp;        cell.setPhrase(new Phrase(&quot;Guest Name&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">222</i>&nbsp;        table.addCell(cell);</b>
+<b class="nc"><i class="no-highlight">223</i>&nbsp;        cell.setPhrase(new Phrase(&quot;Guest Age&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">224</i>&nbsp;        table.addCell(cell);</b>
+<i class="no-highlight">225</i>&nbsp;
+<b class="nc"><i class="no-highlight">226</i>&nbsp;        for (Guest guest: bookedRoomsGuest) {</b>
+<b class="nc"><i class="no-highlight">227</i>&nbsp;            table.addCell(guest.getFirstName().toUpperCase() + &quot; &quot; + guest.getLastName().toUpperCase());</b>
+<b class="nc"><i class="no-highlight">228</i>&nbsp;            table.addCell(String.valueOf(guest.getAge()));</b>
+<b class="nc"><i class="no-highlight">229</i>&nbsp;        }</b>
+<i class="no-highlight">230</i>&nbsp;
+<b class="nc"><i class="no-highlight">231</i>&nbsp;        document.add(guestDetailsHeading);</b>
+<b class="nc"><i class="no-highlight">232</i>&nbsp;        document.add(table);</b>
+<b class="nc"><i class="no-highlight">233</i>&nbsp;        document.add(spacer);</b>
+<b class="nc"><i class="no-highlight">234</i>&nbsp;        log.info(&quot;guest detail section generated&quot;);</b>
+<i class="no-highlight">235</i>&nbsp;    }
+<i class="no-highlight">236</i>&nbsp;
+<i class="no-highlight">237</i>&nbsp;    private void printRoomDetails(Document document, Paragraph spacer, List&lt;Room&gt; bookedRooms, Font fontTitle) {
+<b class="nc"><i class="no-highlight">238</i>&nbsp;        Paragraph roomDetailsHeading = new Paragraph(&quot;Room Details&quot;, fontTitle);</b>
+<i class="no-highlight">239</i>&nbsp;
+<b class="nc"><i class="no-highlight">240</i>&nbsp;        PdfPTable table = new PdfPTable(4);</b>
+<b class="nc"><i class="no-highlight">241</i>&nbsp;        table.setWidthPercentage(100f);</b>
+<b class="nc"><i class="no-highlight">242</i>&nbsp;        table.setWidths(new int[] { 2, 2, 2, 2 });</b>
+<b class="nc"><i class="no-highlight">243</i>&nbsp;        table.setSpacingBefore(5);</b>
+<i class="no-highlight">244</i>&nbsp;
+<i class="no-highlight">245</i>&nbsp;        // Create Table Header
+<b class="nc"><i class="no-highlight">246</i>&nbsp;        PdfPCell cell = new PdfPCell();</b>
+<b class="nc"><i class="no-highlight">247</i>&nbsp;        cell.setPadding(5);</b>
+<i class="no-highlight">248</i>&nbsp;
+<b class="nc"><i class="no-highlight">249</i>&nbsp;        cell.setPhrase(new Phrase(&quot;Room No.&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">250</i>&nbsp;        table.addCell(cell);</b>
+<b class="nc"><i class="no-highlight">251</i>&nbsp;        cell.setPhrase(new Phrase(&quot;Room Type&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">252</i>&nbsp;        table.addCell(cell);</b>
+<b class="nc"><i class="no-highlight">253</i>&nbsp;        cell.setPhrase(new Phrase(&quot;Room Occupancy&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">254</i>&nbsp;        table.addCell(cell);</b>
+<b class="nc"><i class="no-highlight">255</i>&nbsp;        cell.setPhrase(new Phrase(&quot;Room Cost&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">256</i>&nbsp;        table.addCell(cell);</b>
+<i class="no-highlight">257</i>&nbsp;
+<b class="nc"><i class="no-highlight">258</i>&nbsp;        for (Room room: bookedRooms) {</b>
+<b class="nc"><i class="no-highlight">259</i>&nbsp;            table.addCell(String.valueOf(room.getId()));</b>
+<b class="nc"><i class="no-highlight">260</i>&nbsp;            table.addCell(room.getType().toUpperCase());</b>
+<b class="nc"><i class="no-highlight">261</i>&nbsp;            table.addCell(String.valueOf(room.getAdults() + room.getChildren()));</b>
+<b class="nc"><i class="no-highlight">262</i>&nbsp;            table.addCell(String.valueOf(room.getCost()));</b>
+<b class="nc"><i class="no-highlight">263</i>&nbsp;        }</b>
+<i class="no-highlight">264</i>&nbsp;
+<b class="nc"><i class="no-highlight">265</i>&nbsp;        document.add(roomDetailsHeading);</b>
+<b class="nc"><i class="no-highlight">266</i>&nbsp;        document.add(table);</b>
+<b class="nc"><i class="no-highlight">267</i>&nbsp;        document.add(spacer);</b>
+<b class="nc"><i class="no-highlight">268</i>&nbsp;        log.info(&quot;room detail section generated&quot;);</b>
+<i class="no-highlight">269</i>&nbsp;    }
+<i class="no-highlight">270</i>&nbsp;
+<i class="no-highlight">271</i>&nbsp;    private void printBookingDetails(Document document, Paragraph spacer, Booking booking, Font fontTitle) {
+<b class="nc"><i class="no-highlight">272</i>&nbsp;        String numOfDaysStay = String.valueOf(Period.between(booking.getCheckInDate(), booking.getCheckOutDate()).getDays());</b>
+<i class="no-highlight">273</i>&nbsp;
+<b class="nc"><i class="no-highlight">274</i>&nbsp;        Paragraph bookingDetailsHeading = new Paragraph(&quot;Booking Details&quot;, fontTitle);</b>
+<i class="no-highlight">275</i>&nbsp;
+<b class="nc"><i class="no-highlight">276</i>&nbsp;        PdfPTable table = new PdfPTable(6);</b>
+<b class="nc"><i class="no-highlight">277</i>&nbsp;        table.setWidthPercentage(100f);</b>
+<b class="nc"><i class="no-highlight">278</i>&nbsp;        table.setWidths(new int[] { 2, 2, 2, 2, 2, 2 });</b>
+<b class="nc"><i class="no-highlight">279</i>&nbsp;        table.setSpacingBefore(5);</b>
+<i class="no-highlight">280</i>&nbsp;
+<i class="no-highlight">281</i>&nbsp;        // Create Table Header
+<b class="nc"><i class="no-highlight">282</i>&nbsp;        PdfPCell cell = new PdfPCell();</b>
+<b class="nc"><i class="no-highlight">283</i>&nbsp;        cell.setPadding(5);</b>
+<i class="no-highlight">284</i>&nbsp;
+<b class="nc"><i class="no-highlight">285</i>&nbsp;        cell.setPhrase(new Phrase(&quot;Booking Id&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">286</i>&nbsp;        table.addCell(cell);</b>
+<b class="nc"><i class="no-highlight">287</i>&nbsp;        cell.setPhrase(new Phrase(&quot;Check In Date&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">288</i>&nbsp;        table.addCell(cell);</b>
+<b class="nc"><i class="no-highlight">289</i>&nbsp;        cell.setPhrase(new Phrase(&quot;Check Out Date&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">290</i>&nbsp;        table.addCell(cell);</b>
+<b class="nc"><i class="no-highlight">291</i>&nbsp;        cell.setPhrase(new Phrase(&quot;No. of Days&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">292</i>&nbsp;        table.addCell(cell);</b>
+<b class="nc"><i class="no-highlight">293</i>&nbsp;        cell.setPhrase(new Phrase(&quot;No. of Rooms&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">294</i>&nbsp;        table.addCell(cell);</b>
+<b class="nc"><i class="no-highlight">295</i>&nbsp;        cell.setPhrase(new Phrase(&quot;No. of Guests&quot;, fontTitle));</b>
+<b class="nc"><i class="no-highlight">296</i>&nbsp;        table.addCell(cell);</b>
+<i class="no-highlight">297</i>&nbsp;
+<b class="nc"><i class="no-highlight">298</i>&nbsp;        table.addCell(String.valueOf(booking.getId()));</b>
+<b class="nc"><i class="no-highlight">299</i>&nbsp;        table.addCell(String.valueOf(booking.getCheckInDate()));</b>
+<b class="nc"><i class="no-highlight">300</i>&nbsp;        table.addCell(String.valueOf(booking.getCheckOutDate()));</b>
+<b class="nc"><i class="no-highlight">301</i>&nbsp;        table.addCell(numOfDaysStay);</b>
+<b class="nc"><i class="no-highlight">302</i>&nbsp;        table.addCell(String.valueOf(booking.getBookedRooms().size()));</b>
+<b class="nc"><i class="no-highlight">303</i>&nbsp;        table.addCell(String.valueOf(booking.getBookedRoomsGuest().size()));</b>
+<i class="no-highlight">304</i>&nbsp;
+<b class="nc"><i class="no-highlight">305</i>&nbsp;        document.add(bookingDetailsHeading);</b>
+<b class="nc"><i class="no-highlight">306</i>&nbsp;        document.add(table);</b>
+<b class="nc"><i class="no-highlight">307</i>&nbsp;        document.add(spacer);</b>
+<b class="nc"><i class="no-highlight">308</i>&nbsp;        log.info(&quot;booking detail section generated&quot;);</b>
+<i class="no-highlight">309</i>&nbsp;    }
+<i class="no-highlight">310</i>&nbsp;
+<i class="no-highlight">311</i>&nbsp;    private void printInvoiceHeader(Document document, Paragraph spacer, Font fontTitle, Font fontParagraph) {
+<b class="nc"><i class="no-highlight">312</i>&nbsp;        String count = String.valueOf(invoiceCounter++);</b>
+<b class="nc"><i class="no-highlight">313</i>&nbsp;        String date = String.valueOf(LocalDate.now());</b>
+<i class="no-highlight">314</i>&nbsp;
+<b class="nc"><i class="no-highlight">315</i>&nbsp;        Paragraph hotelName = new Paragraph(&quot;Hotel GrandView&quot;, fontTitle);</b>
+<b class="nc"><i class="no-highlight">316</i>&nbsp;        Paragraph invoice = new Paragraph(&quot;Invoice&quot;, fontTitle);</b>
+<b class="nc"><i class="no-highlight">317</i>&nbsp;        Paragraph invoiceNo = new Paragraph(&quot;Invoice No: &quot; + count, fontParagraph);</b>
+<b class="nc"><i class="no-highlight">318</i>&nbsp;        Paragraph invoiceDate = new Paragraph(&quot;Date: &quot; + date, fontParagraph);</b>
+<i class="no-highlight">319</i>&nbsp;
+<b class="nc"><i class="no-highlight">320</i>&nbsp;        document.add(hotelName);</b>
+<b class="nc"><i class="no-highlight">321</i>&nbsp;        document.add(invoice);</b>
+<b class="nc"><i class="no-highlight">322</i>&nbsp;        document.add(invoiceNo);</b>
+<b class="nc"><i class="no-highlight">323</i>&nbsp;        document.add(invoiceDate);</b>
+<b class="nc"><i class="no-highlight">324</i>&nbsp;        document.add(spacer);</b>
+<b class="nc"><i class="no-highlight">325</i>&nbsp;        log.info(&quot;Header section generated&quot;);</b>
+<i class="no-highlight">326</i>&nbsp;    }
+<i class="no-highlight">327</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-05-23 00:36</div>
+</div>
+</body>
+</html>

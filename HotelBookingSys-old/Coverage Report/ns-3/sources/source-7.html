@@ -1,0 +1,184 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > RoomController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.example.bookingsystem.controller</a>
+</div>
+
+<h1>Coverage Summary for Class: RoomController (com.example.bookingsystem.controller)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">RoomController</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (11/11)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (11/11)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package com.example.bookingsystem.controller;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;
+<i class="no-highlight">4</i>&nbsp;import com.example.bookingsystem.domain.Room;
+<i class="no-highlight">5</i>&nbsp;import com.example.bookingsystem.service.RoomService;
+<i class="no-highlight">6</i>&nbsp;import lombok.extern.slf4j.Slf4j;
+<i class="no-highlight">7</i>&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+<i class="no-highlight">8</i>&nbsp;import org.springframework.http.ResponseEntity;
+<i class="no-highlight">9</i>&nbsp;import org.springframework.security.access.prepost.PreAuthorize;
+<i class="no-highlight">10</i>&nbsp;import org.springframework.web.bind.annotation.*;
+<i class="no-highlight">11</i>&nbsp;
+<i class="no-highlight">12</i>&nbsp;import java.util.List;
+<i class="no-highlight">13</i>&nbsp;
+<i class="no-highlight">14</i>&nbsp;@RestController
+<i class="no-highlight">15</i>&nbsp;@RequestMapping(&quot;/api/v2/room&quot;)
+<b class="fc"><i class="no-highlight">16</i>&nbsp;public class RoomController {</b>
+<i class="no-highlight">17</i>&nbsp;    @Autowired
+<i class="no-highlight">18</i>&nbsp;    private RoomService roomService;
+<i class="no-highlight">19</i>&nbsp;
+<i class="no-highlight">20</i>&nbsp;    @PreAuthorize(&quot;hasAuthority(&#39;staff&#39;)&quot;)
+<i class="no-highlight">21</i>&nbsp;    @PostMapping(&quot;/create&quot;)
+<i class="no-highlight">22</i>&nbsp;    public ResponseEntity&lt;String&gt; createRoom(@RequestBody Room room) {
+<b class="fc"><i class="no-highlight">23</i>&nbsp;        return roomService.saveRoom(room);</b>
+<i class="no-highlight">24</i>&nbsp;    }
+<i class="no-highlight">25</i>&nbsp;
+<i class="no-highlight">26</i>&nbsp;    @PreAuthorize(&quot;hasAnyAuthority(&#39;staff&#39;, &#39;customer&#39;)&quot;)
+<i class="no-highlight">27</i>&nbsp;    @GetMapping(&quot;/view/all&quot;)
+<i class="no-highlight">28</i>&nbsp;    public ResponseEntity&lt;List&lt;Room&gt;&gt; getAllRooms() {
+<b class="fc"><i class="no-highlight">29</i>&nbsp;        return ResponseEntity.ok().body(roomService.getAllRooms());</b>
+<i class="no-highlight">30</i>&nbsp;    }
+<i class="no-highlight">31</i>&nbsp;
+<i class="no-highlight">32</i>&nbsp;    @PreAuthorize(&quot;hasAnyAuthority(&#39;staff&#39;, &#39;customer&#39;)&quot;)
+<i class="no-highlight">33</i>&nbsp;    @GetMapping(&quot;/view/id/{roomId}&quot;)
+<i class="no-highlight">34</i>&nbsp;    public ResponseEntity&lt;Room&gt; getRoomByRoomId(@PathVariable Long roomId) {
+<b class="fc"><i class="no-highlight">35</i>&nbsp;        return ResponseEntity.ok().body(roomService.getRoomById(roomId));</b>
+<i class="no-highlight">36</i>&nbsp;    }
+<i class="no-highlight">37</i>&nbsp;
+<i class="no-highlight">38</i>&nbsp;    @PreAuthorize(&quot;hasAnyAuthority(&#39;staff&#39;, &#39;customer&#39;)&quot;)
+<i class="no-highlight">39</i>&nbsp;    @GetMapping(&quot;/view/all/type/{roomType}&quot;)
+<i class="no-highlight">40</i>&nbsp;    public ResponseEntity&lt;List&lt;Room&gt;&gt; getRoomByRoomType(@PathVariable String roomType) {
+<b class="fc"><i class="no-highlight">41</i>&nbsp;        return ResponseEntity.ok().body(roomService.getRoomsByType(roomType.toLowerCase()));</b>
+<i class="no-highlight">42</i>&nbsp;    }
+<i class="no-highlight">43</i>&nbsp;
+<i class="no-highlight">44</i>&nbsp;    @PreAuthorize(&quot;hasAnyAuthority(&#39;staff&#39;, &#39;customer&#39;)&quot;)
+<i class="no-highlight">45</i>&nbsp;    @GetMapping(&quot;/view/all/occupancy/adults/{adults}/children/{children}&quot;)
+<i class="no-highlight">46</i>&nbsp;    public ResponseEntity&lt;List&lt;Room&gt;&gt; getRoomByRoomOccupancy(@PathVariable int adults, @PathVariable int children) {
+<b class="fc"><i class="no-highlight">47</i>&nbsp;        return ResponseEntity.ok().body(roomService.getRoomsByOccupancy(adults, children));</b>
+<i class="no-highlight">48</i>&nbsp;    }
+<i class="no-highlight">49</i>&nbsp;
+<i class="no-highlight">50</i>&nbsp;    @PreAuthorize(&quot;hasAnyAuthority(&#39;staff&#39;, &#39;customer&#39;)&quot;)
+<i class="no-highlight">51</i>&nbsp;    @GetMapping(&quot;/view/all/price/{startingPrice}&amp;{endingPrice}&quot;)
+<i class="no-highlight">52</i>&nbsp;    public ResponseEntity&lt;List&lt;Room&gt;&gt; getRoomsBetweenPrice(@PathVariable Double startingPrice, @PathVariable Double endingPrice) {
+<b class="fc"><i class="no-highlight">53</i>&nbsp;        return ResponseEntity.ok().body(roomService.getRoomsBetweenPriceRange(startingPrice, endingPrice));</b>
+<i class="no-highlight">54</i>&nbsp;    }
+<i class="no-highlight">55</i>&nbsp;
+<i class="no-highlight">56</i>&nbsp;    @PreAuthorize(&quot;hasAnyAuthority(&#39;staff&#39;, &#39;customer&#39;)&quot;)
+<i class="no-highlight">57</i>&nbsp;    @GetMapping(&quot;/view/all/available&quot;)
+<i class="no-highlight">58</i>&nbsp;    public ResponseEntity&lt;List&lt;Room&gt;&gt; getAllAvailable() {
+<b class="fc"><i class="no-highlight">59</i>&nbsp;        return ResponseEntity.ok().body(roomService.getAllAvailableRooms());</b>
+<i class="no-highlight">60</i>&nbsp;    }
+<i class="no-highlight">61</i>&nbsp;
+<i class="no-highlight">62</i>&nbsp;    @PreAuthorize(&quot;hasAuthority(&#39;staff&#39;)&quot;)
+<i class="no-highlight">63</i>&nbsp;    @GetMapping(&quot;/view/all/reserved&quot;)
+<i class="no-highlight">64</i>&nbsp;    public ResponseEntity&lt;List&lt;Room&gt;&gt; getAllReserved() {
+<b class="fc"><i class="no-highlight">65</i>&nbsp;        return ResponseEntity.ok().body(roomService.getAllReservedRooms());</b>
+<i class="no-highlight">66</i>&nbsp;    }
+<i class="no-highlight">67</i>&nbsp;
+<i class="no-highlight">68</i>&nbsp;    @PreAuthorize(&quot;hasAuthority(&#39;staff&#39;)&quot;)
+<i class="no-highlight">69</i>&nbsp;    @PutMapping(&quot;/update/{roomId}&quot;)
+<i class="no-highlight">70</i>&nbsp;    public ResponseEntity&lt;Room&gt; updateRoom(@PathVariable Long roomId, @RequestBody Room room) {
+<b class="fc"><i class="no-highlight">71</i>&nbsp;        return ResponseEntity.ok().body(roomService.updateRoom(roomId, room));</b>
+<i class="no-highlight">72</i>&nbsp;    }
+<i class="no-highlight">73</i>&nbsp;
+<i class="no-highlight">74</i>&nbsp;    @PreAuthorize(&quot;hasAuthority(&#39;staff&#39;)&quot;)
+<i class="no-highlight">75</i>&nbsp;    @DeleteMapping(&quot;/delete/{roomId}&quot;)
+<i class="no-highlight">76</i>&nbsp;    public ResponseEntity&lt;String&gt; deleteRoom(@PathVariable Long roomId) {
+<b class="fc"><i class="no-highlight">77</i>&nbsp;        return roomService.deleteRoomById(roomId);</b>
+<i class="no-highlight">78</i>&nbsp;    }
+<i class="no-highlight">79</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-05-23 00:36</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,210 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > CatalogServiceImpl</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.example.bookingsystem.service.impl</a>
+</div>
+
+<h1>Coverage Summary for Class: CatalogServiceImpl (com.example.bookingsystem.service.impl)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">CatalogServiceImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (4/8)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    36.8%
+  </span>
+  <span class="absValue">
+    (14/38)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package com.example.bookingsystem.service.impl;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import com.example.bookingsystem.domain.Catalog;
+<i class="no-highlight">4</i>&nbsp;import com.example.bookingsystem.domain.catalog.Facility;
+<i class="no-highlight">5</i>&nbsp;import com.example.bookingsystem.domain.catalog.Meal;
+<i class="no-highlight">6</i>&nbsp;import com.example.bookingsystem.repository.CatalogRepository;
+<i class="no-highlight">7</i>&nbsp;import com.example.bookingsystem.service.CatalogService;
+<i class="no-highlight">8</i>&nbsp;import com.example.bookingsystem.service.catalog.FacilityService;
+<i class="no-highlight">9</i>&nbsp;import com.example.bookingsystem.service.catalog.MealService;
+<i class="no-highlight">10</i>&nbsp;import com.example.bookingsystem.validation.catalog.FacilityValidation;
+<i class="no-highlight">11</i>&nbsp;import com.example.bookingsystem.validation.catalog.MealValidation;
+<i class="no-highlight">12</i>&nbsp;import lombok.extern.slf4j.Slf4j;
+<i class="no-highlight">13</i>&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+<i class="no-highlight">14</i>&nbsp;import org.springframework.http.HttpStatus;
+<i class="no-highlight">15</i>&nbsp;import org.springframework.stereotype.Service;
+<i class="no-highlight">16</i>&nbsp;import org.springframework.transaction.annotation.Transactional;
+<i class="no-highlight">17</i>&nbsp;import org.springframework.web.server.ResponseStatusException;
+<i class="no-highlight">18</i>&nbsp;
+<i class="no-highlight">19</i>&nbsp;import java.util.*;
+<i class="no-highlight">20</i>&nbsp;
+<i class="no-highlight">21</i>&nbsp;@Service
+<i class="no-highlight">22</i>&nbsp;@Transactional
+<b class="fc"><i class="no-highlight">23</i>&nbsp;@Slf4j</b>
+<b class="fc"><i class="no-highlight">24</i>&nbsp;public class CatalogServiceImpl implements CatalogService {</b>
+<i class="no-highlight">25</i>&nbsp;    @Autowired
+<i class="no-highlight">26</i>&nbsp;    private CatalogRepository catalogRepository;
+<i class="no-highlight">27</i>&nbsp;
+<i class="no-highlight">28</i>&nbsp;    @Autowired
+<i class="no-highlight">29</i>&nbsp;    private FacilityService facilityService;
+<i class="no-highlight">30</i>&nbsp;
+<i class="no-highlight">31</i>&nbsp;    @Autowired
+<i class="no-highlight">32</i>&nbsp;    private MealService mealService;
+<i class="no-highlight">33</i>&nbsp;
+<i class="no-highlight">34</i>&nbsp;    @Override
+<i class="no-highlight">35</i>&nbsp;    public Catalog saveCatalog(List&lt;String&gt; facilitiesName, List&lt;String&gt; mealNames) {
+<b class="fc"><i class="no-highlight">36</i>&nbsp;        log.debug(&quot;Function saveCatalog - facilitiesName: &quot; + facilitiesName + &quot; | mealName: &quot; + mealNames);</b>
+<i class="no-highlight">37</i>&nbsp;
+<b class="fc"><i class="no-highlight">38</i>&nbsp;        Catalog catalog = new Catalog();</b>
+<i class="no-highlight">39</i>&nbsp;
+<b class="fc"><i class="no-highlight">40</i>&nbsp;        if (facilitiesName.isEmpty() || mealNames.isEmpty()) {</b>
+<b class="fc"><i class="no-highlight">41</i>&nbsp;            log.error(&quot;entered details are either null or empty&quot;);</b>
+<b class="fc"><i class="no-highlight">42</i>&nbsp;            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, &quot;entered details are either null or empty&quot;);</b>
+<i class="no-highlight">43</i>&nbsp;        }
+<i class="no-highlight">44</i>&nbsp;
+<b class="nc"><i class="no-highlight">45</i>&nbsp;        log.info(&quot;saving catalog in db&quot;);</b>
+<i class="no-highlight">46</i>&nbsp;
+<b class="nc"><i class="no-highlight">47</i>&nbsp;        log.debug(&quot;Calling addFacilitiesToCatalog - facilities: &quot; + addFacilitiesToCatalog(facilitiesName));</b>
+<b class="nc"><i class="no-highlight">48</i>&nbsp;        catalog.setCatalogFacilities(addFacilitiesToCatalog(facilitiesName));</b>
+<i class="no-highlight">49</i>&nbsp;
+<b class="nc"><i class="no-highlight">50</i>&nbsp;        log.debug(&quot;Calling addMealsToCatalog - meal plan: &quot; + addMealsToCatalog(mealNames));</b>
+<b class="nc"><i class="no-highlight">51</i>&nbsp;        catalog.setCatalogMeals(addMealsToCatalog(mealNames));</b>
+<i class="no-highlight">52</i>&nbsp;
+<b class="nc"><i class="no-highlight">53</i>&nbsp;        log.debug(&quot;Catalog: &quot; + catalog);</b>
+<b class="nc"><i class="no-highlight">54</i>&nbsp;        log.info(&quot;Catalog saved in db&quot;);</b>
+<b class="nc"><i class="no-highlight">55</i>&nbsp;        return catalogRepository.save(catalog);</b>
+<i class="no-highlight">56</i>&nbsp;    }
+<i class="no-highlight">57</i>&nbsp;
+<i class="no-highlight">58</i>&nbsp;    private List&lt;Meal&gt; addMealsToCatalog(List&lt;String&gt; mealNames) {
+<b class="nc"><i class="no-highlight">59</i>&nbsp;        List&lt;Meal&gt; meals = new ArrayList&lt;Meal&gt;();</b>
+<i class="no-highlight">60</i>&nbsp;
+<b class="nc"><i class="no-highlight">61</i>&nbsp;        mealNames.forEach(mealName -&gt; {</b>
+<b class="nc"><i class="no-highlight">62</i>&nbsp;            Meal meal = mealService.getMealByMealName(mealName);</b>
+<i class="no-highlight">63</i>&nbsp;
+<b class="nc"><i class="no-highlight">64</i>&nbsp;            if (MealValidation.checkMeal(meal)) {</b>
+<b class="nc"><i class="no-highlight">65</i>&nbsp;                log.error(&quot;Error in meal details&quot;);</b>
+<b class="nc"><i class="no-highlight">66</i>&nbsp;                throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, &quot;error in meal details: &quot; + meal);</b>
+<i class="no-highlight">67</i>&nbsp;            }
+<i class="no-highlight">68</i>&nbsp;
+<b class="nc"><i class="no-highlight">69</i>&nbsp;            meals.add(meal);</b>
+<i class="no-highlight">70</i>&nbsp;        });
+<i class="no-highlight">71</i>&nbsp;
+<b class="nc"><i class="no-highlight">72</i>&nbsp;        return meals;</b>
+<i class="no-highlight">73</i>&nbsp;    }
+<i class="no-highlight">74</i>&nbsp;
+<i class="no-highlight">75</i>&nbsp;    private List&lt;Facility&gt; addFacilitiesToCatalog(List&lt;String&gt; facilitiesName) {
+<b class="nc"><i class="no-highlight">76</i>&nbsp;        List&lt;Facility&gt; facilities = new ArrayList&lt;Facility&gt;();</b>
+<i class="no-highlight">77</i>&nbsp;
+<b class="nc"><i class="no-highlight">78</i>&nbsp;        facilitiesName.forEach(facilityName -&gt; {</b>
+<b class="nc"><i class="no-highlight">79</i>&nbsp;            Facility facility = facilityService.getFacilityByFacilityName(facilityName);</b>
+<i class="no-highlight">80</i>&nbsp;
+<b class="nc"><i class="no-highlight">81</i>&nbsp;            if (FacilityValidation.checkFacility(facility)) {</b>
+<b class="nc"><i class="no-highlight">82</i>&nbsp;                log.error(&quot;Error in facility details&quot;);</b>
+<b class="nc"><i class="no-highlight">83</i>&nbsp;                throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, &quot;error in facility details: &quot; + facility);</b>
+<i class="no-highlight">84</i>&nbsp;            }
+<i class="no-highlight">85</i>&nbsp;
+<b class="nc"><i class="no-highlight">86</i>&nbsp;            facilities.add(facility);</b>
+<i class="no-highlight">87</i>&nbsp;        });
+<i class="no-highlight">88</i>&nbsp;
+<b class="nc"><i class="no-highlight">89</i>&nbsp;        return facilities;</b>
+<i class="no-highlight">90</i>&nbsp;    }
+<i class="no-highlight">91</i>&nbsp;
+<i class="no-highlight">92</i>&nbsp;    @Override
+<i class="no-highlight">93</i>&nbsp;    public List&lt;Catalog&gt; getAllCatalog() {
+<b class="fc"><i class="no-highlight">94</i>&nbsp;        List&lt;Catalog&gt; catalogs = catalogRepository.findAll();</b>
+<b class="fc"><i class="no-highlight">95</i>&nbsp;        log.debug(&quot;Function getAllCatalogs - catalogs: &quot; + catalogs);</b>
+<i class="no-highlight">96</i>&nbsp;
+<b class="fc"><i class="no-highlight">97</i>&nbsp;        if (catalogs.isEmpty()) {</b>
+<b class="fc"><i class="no-highlight">98</i>&nbsp;            log.error(&quot;No catalog found&quot;);</b>
+<b class="fc"><i class="no-highlight">99</i>&nbsp;            throw new ResponseStatusException(HttpStatus.NO_CONTENT, &quot;No catalog found&quot;);</b>
+<i class="no-highlight">100</i>&nbsp;        }
+<i class="no-highlight">101</i>&nbsp;
+<b class="fc"><i class="no-highlight">102</i>&nbsp;        log.info(&quot;All catalogs fetched&quot;);</b>
+<b class="fc"><i class="no-highlight">103</i>&nbsp;        return catalogs;</b>
+<i class="no-highlight">104</i>&nbsp;    }
+<i class="no-highlight">105</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-05-23 00:36</div>
+</div>
+</body>
+</html>

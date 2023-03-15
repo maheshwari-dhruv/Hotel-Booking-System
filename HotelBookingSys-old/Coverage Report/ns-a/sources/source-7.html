@@ -1,0 +1,191 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > RoleServiceImpl</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.example.bookingsystem.service.impl</a>
+</div>
+
+<h1>Coverage Summary for Class: RoleServiceImpl (com.example.bookingsystem.service.impl)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">RoleServiceImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (5/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    65.6%
+  </span>
+  <span class="absValue">
+    (21/32)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package com.example.bookingsystem.service.impl;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import com.example.bookingsystem.domain.Role;
+<i class="no-highlight">4</i>&nbsp;import com.example.bookingsystem.domain.User;
+<i class="no-highlight">5</i>&nbsp;import com.example.bookingsystem.repository.RoleRepository;
+<i class="no-highlight">6</i>&nbsp;import com.example.bookingsystem.repository.UserRepository;
+<i class="no-highlight">7</i>&nbsp;import com.example.bookingsystem.service.RoleService;
+<i class="no-highlight">8</i>&nbsp;import com.example.bookingsystem.validation.RoleValidation;
+<i class="no-highlight">9</i>&nbsp;import com.example.bookingsystem.validation.StringValidation;
+<i class="no-highlight">10</i>&nbsp;import lombok.extern.slf4j.Slf4j;
+<i class="no-highlight">11</i>&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+<i class="no-highlight">12</i>&nbsp;import org.springframework.http.HttpStatus;
+<i class="no-highlight">13</i>&nbsp;import org.springframework.http.ResponseEntity;
+<i class="no-highlight">14</i>&nbsp;import org.springframework.stereotype.Service;
+<i class="no-highlight">15</i>&nbsp;import org.springframework.transaction.annotation.Transactional;
+<i class="no-highlight">16</i>&nbsp;import org.springframework.web.server.ResponseStatusException;
+<i class="no-highlight">17</i>&nbsp;
+<i class="no-highlight">18</i>&nbsp;import java.util.List;
+<i class="no-highlight">19</i>&nbsp;
+<i class="no-highlight">20</i>&nbsp;@Service
+<i class="no-highlight">21</i>&nbsp;@Transactional
+<b class="fc"><i class="no-highlight">22</i>&nbsp;@Slf4j</b>
+<b class="fc"><i class="no-highlight">23</i>&nbsp;public class RoleServiceImpl implements RoleService {</b>
+<i class="no-highlight">24</i>&nbsp;    @Autowired
+<i class="no-highlight">25</i>&nbsp;    private RoleRepository roleRepository;
+<i class="no-highlight">26</i>&nbsp;
+<i class="no-highlight">27</i>&nbsp;    @Autowired
+<i class="no-highlight">28</i>&nbsp;    private UserRepository userRepository;
+<i class="no-highlight">29</i>&nbsp;
+<i class="no-highlight">30</i>&nbsp;    @Override
+<i class="no-highlight">31</i>&nbsp;    public ResponseEntity&lt;String&gt; saveRole(Role role) {
+<b class="fc"><i class="no-highlight">32</i>&nbsp;        log.debug(&quot;Function saveRole - role: &quot; + role);</b>
+<i class="no-highlight">33</i>&nbsp;
+<b class="fc"><i class="no-highlight">34</i>&nbsp;        if (RoleValidation.checkRole(role)) {</b>
+<b class="fc"><i class="no-highlight">35</i>&nbsp;            log.error(&quot;Role details incorrect&quot;);</b>
+<b class="fc"><i class="no-highlight">36</i>&nbsp;            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, &quot;Role details incorrect&quot;);</b>
+<i class="no-highlight">37</i>&nbsp;        }
+<i class="no-highlight">38</i>&nbsp;
+<b class="fc"><i class="no-highlight">39</i>&nbsp;        log.info(&quot;Saving new role &quot; + role.getName() + &quot; to db&quot;);</b>
+<b class="fc"><i class="no-highlight">40</i>&nbsp;        roleRepository.save(role);</b>
+<b class="fc"><i class="no-highlight">41</i>&nbsp;        return ResponseEntity.ok().body(&quot;Role saved in db&quot;);</b>
+<i class="no-highlight">42</i>&nbsp;    }
+<i class="no-highlight">43</i>&nbsp;
+<i class="no-highlight">44</i>&nbsp;    @Override
+<i class="no-highlight">45</i>&nbsp;    public List&lt;Role&gt; getAllRoles() {
+<i class="no-highlight">46</i>&nbsp;
+<b class="fc"><i class="no-highlight">47</i>&nbsp;        log.info(&quot;fetching all roles from db&quot;);</b>
+<b class="fc"><i class="no-highlight">48</i>&nbsp;        List&lt;Role&gt; allRoles = roleRepository.findAll();</b>
+<i class="no-highlight">49</i>&nbsp;
+<b class="fc"><i class="no-highlight">50</i>&nbsp;        log.debug(&quot;Function getAllRoles - allRoles: &quot; + allRoles);</b>
+<b class="fc"><i class="no-highlight">51</i>&nbsp;        if (allRoles.isEmpty()) {</b>
+<b class="fc"><i class="no-highlight">52</i>&nbsp;            log.error(&quot;No role found in db&quot;);</b>
+<b class="fc"><i class="no-highlight">53</i>&nbsp;            throw new ResponseStatusException(HttpStatus.NO_CONTENT, &quot;No role found in db&quot;);</b>
+<i class="no-highlight">54</i>&nbsp;        }
+<i class="no-highlight">55</i>&nbsp;
+<b class="fc"><i class="no-highlight">56</i>&nbsp;        log.info(&quot;All roles fetched&quot;);</b>
+<b class="fc"><i class="no-highlight">57</i>&nbsp;        return allRoles;</b>
+<i class="no-highlight">58</i>&nbsp;    }
+<i class="no-highlight">59</i>&nbsp;
+<i class="no-highlight">60</i>&nbsp;    @Override
+<i class="no-highlight">61</i>&nbsp;    public List&lt;User&gt; getAllUsersByRole(String name) {
+<b class="fc"><i class="no-highlight">62</i>&nbsp;        log.debug(&quot;Function getAllUsersByRole - name: &quot; + name);</b>
+<i class="no-highlight">63</i>&nbsp;
+<b class="fc"><i class="no-highlight">64</i>&nbsp;        if (StringValidation.checkNullEmptyString(name)) {</b>
+<b class="fc"><i class="no-highlight">65</i>&nbsp;            log.error(&quot;role name can&#39;t be null or empty&quot;);</b>
+<b class="fc"><i class="no-highlight">66</i>&nbsp;            throw new ResponseStatusException(HttpStatus.NO_CONTENT, &quot;role name can&#39;t be null or empty&quot;);</b>
+<i class="no-highlight">67</i>&nbsp;        }
+<i class="no-highlight">68</i>&nbsp;
+<b class="nc"><i class="no-highlight">69</i>&nbsp;        log.info(&quot;fetching all user by roles&quot;);</b>
+<i class="no-highlight">70</i>&nbsp;
+<b class="nc"><i class="no-highlight">71</i>&nbsp;        List&lt;User&gt; users = userRepository.findAll()</b>
+<b class="nc"><i class="no-highlight">72</i>&nbsp;                .stream()</b>
+<b class="nc"><i class="no-highlight">73</i>&nbsp;                .filter(user -&gt; user.getRoles().contains(name))</b>
+<b class="nc"><i class="no-highlight">74</i>&nbsp;                .toList();</b>
+<i class="no-highlight">75</i>&nbsp;
+<b class="nc"><i class="no-highlight">76</i>&nbsp;        log.debug(&quot;Function getAllUsersByRole - users: &quot; + users);</b>
+<i class="no-highlight">77</i>&nbsp;
+<b class="nc"><i class="no-highlight">78</i>&nbsp;        if (users.isEmpty()) {</b>
+<b class="nc"><i class="no-highlight">79</i>&nbsp;            log.error(&quot;no user found of this role&quot;);</b>
+<b class="nc"><i class="no-highlight">80</i>&nbsp;            throw new ResponseStatusException(HttpStatus.NO_CONTENT, &quot;no user found of this role&quot;);</b>
+<i class="no-highlight">81</i>&nbsp;        }
+<i class="no-highlight">82</i>&nbsp;
+<b class="nc"><i class="no-highlight">83</i>&nbsp;        log.info(&quot;All users fetched&quot;);</b>
+<b class="nc"><i class="no-highlight">84</i>&nbsp;        return users;</b>
+<i class="no-highlight">85</i>&nbsp;    }
+<i class="no-highlight">86</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-05-23 00:36</div>
+</div>
+</body>
+</html>

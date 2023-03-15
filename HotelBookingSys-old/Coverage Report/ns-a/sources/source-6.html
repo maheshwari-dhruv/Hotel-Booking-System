@@ -1,0 +1,181 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > PaymentServiceImpl</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.example.bookingsystem.service.impl</a>
+</div>
+
+<h1>Coverage Summary for Class: PaymentServiceImpl (com.example.bookingsystem.service.impl)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">PaymentServiceImpl</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/5)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/31)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;package com.example.bookingsystem.service.impl;
+<i class="no-highlight">2</i>&nbsp;
+<i class="no-highlight">3</i>&nbsp;import com.example.bookingsystem.domain.Booking;
+<i class="no-highlight">4</i>&nbsp;import com.example.bookingsystem.domain.Payment;
+<i class="no-highlight">5</i>&nbsp;import com.example.bookingsystem.repository.PaymentRepository;
+<i class="no-highlight">6</i>&nbsp;import com.example.bookingsystem.service.BookingService;
+<i class="no-highlight">7</i>&nbsp;import com.example.bookingsystem.service.PaymentService;
+<i class="no-highlight">8</i>&nbsp;import com.example.bookingsystem.validation.BookingValidation;
+<i class="no-highlight">9</i>&nbsp;import lombok.extern.slf4j.Slf4j;
+<i class="no-highlight">10</i>&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+<i class="no-highlight">11</i>&nbsp;import org.springframework.http.HttpStatus;
+<i class="no-highlight">12</i>&nbsp;import org.springframework.http.ResponseEntity;
+<i class="no-highlight">13</i>&nbsp;import org.springframework.stereotype.Service;
+<i class="no-highlight">14</i>&nbsp;import org.springframework.transaction.annotation.Transactional;
+<i class="no-highlight">15</i>&nbsp;import org.springframework.web.server.ResponseStatusException;
+<i class="no-highlight">16</i>&nbsp;
+<i class="no-highlight">17</i>&nbsp;import java.time.LocalDate;
+<i class="no-highlight">18</i>&nbsp;
+<i class="no-highlight">19</i>&nbsp;@Service
+<i class="no-highlight">20</i>&nbsp;@Transactional
+<b class="nc"><i class="no-highlight">21</i>&nbsp;@Slf4j</b>
+<b class="nc"><i class="no-highlight">22</i>&nbsp;public class PaymentServiceImpl implements PaymentService {</b>
+<b class="nc"><i class="no-highlight">23</i>&nbsp;    private Double totalCost = 0.0;</b>
+<i class="no-highlight">24</i>&nbsp;
+<i class="no-highlight">25</i>&nbsp;    @Autowired
+<i class="no-highlight">26</i>&nbsp;    private BookingService bookingService;
+<i class="no-highlight">27</i>&nbsp;
+<i class="no-highlight">28</i>&nbsp;    @Autowired
+<i class="no-highlight">29</i>&nbsp;    private PaymentRepository paymentRepository;
+<i class="no-highlight">30</i>&nbsp;
+<i class="no-highlight">31</i>&nbsp;    @Override
+<i class="no-highlight">32</i>&nbsp;    public ResponseEntity&lt;String&gt; makePayment(Long bookingId, Payment payment) {
+<b class="nc"><i class="no-highlight">33</i>&nbsp;        log.debug(&quot;Function makePayment - bookingId: &quot; + bookingId + &quot; | payment: &quot; + payment);</b>
+<b class="nc"><i class="no-highlight">34</i>&nbsp;        Booking booking = bookingService.getBookingById(bookingId);</b>
+<i class="no-highlight">35</i>&nbsp;
+<b class="nc"><i class="no-highlight">36</i>&nbsp;        log.debug(&quot;booking fetched: &quot; + booking);</b>
+<i class="no-highlight">37</i>&nbsp;
+<b class="nc"><i class="no-highlight">38</i>&nbsp;        if (BookingValidation.checkBooking(booking)) {</b>
+<b class="nc"><i class="no-highlight">39</i>&nbsp;            log.error(&quot;booking details incorrect&quot;);</b>
+<b class="nc"><i class="no-highlight">40</i>&nbsp;            throw new ResponseStatusException(HttpStatus.NO_CONTENT, &quot;booking details incorrect&quot;);</b>
+<i class="no-highlight">41</i>&nbsp;        }
+<i class="no-highlight">42</i>&nbsp;
+<b class="nc"><i class="no-highlight">43</i>&nbsp;        booking.getBookedRooms().forEach(room -&gt; {</b>
+<b class="nc"><i class="no-highlight">44</i>&nbsp;            log.debug(&quot;Booked rooms : &quot; + room);</b>
+<b class="nc"><i class="no-highlight">45</i>&nbsp;            totalCost += room.getCost();</b>
+<i class="no-highlight">46</i>&nbsp;        });
+<i class="no-highlight">47</i>&nbsp;
+<b class="nc"><i class="no-highlight">48</i>&nbsp;        booking.getCatalog().getCatalogFacilities().forEach(facility -&gt; {</b>
+<b class="nc"><i class="no-highlight">49</i>&nbsp;            log.debug(&quot;Facility : &quot; + facility);</b>
+<b class="nc"><i class="no-highlight">50</i>&nbsp;            totalCost += facility.getPrice();</b>
+<i class="no-highlight">51</i>&nbsp;        });
+<i class="no-highlight">52</i>&nbsp;
+<b class="nc"><i class="no-highlight">53</i>&nbsp;        log.info(&quot;making payment&quot;);</b>
+<b class="nc"><i class="no-highlight">54</i>&nbsp;        Payment makePayment = new Payment();</b>
+<i class="no-highlight">55</i>&nbsp;
+<b class="nc"><i class="no-highlight">56</i>&nbsp;        log.debug(&quot;Payment mode: &quot; + payment.getPaymentMode());</b>
+<b class="nc"><i class="no-highlight">57</i>&nbsp;        makePayment.setPaymentMode(payment.getPaymentMode());</b>
+<i class="no-highlight">58</i>&nbsp;
+<b class="nc"><i class="no-highlight">59</i>&nbsp;        log.debug(&quot;Date: &quot; + LocalDate.now());</b>
+<b class="nc"><i class="no-highlight">60</i>&nbsp;        makePayment.setPaymentDate(LocalDate.now());</b>
+<b class="nc"><i class="no-highlight">61</i>&nbsp;        booking.setIsPaymentMade(true);</b>
+<i class="no-highlight">62</i>&nbsp;
+<b class="nc"><i class="no-highlight">63</i>&nbsp;        log.debug(&quot;Booking: &quot; + booking);</b>
+<b class="nc"><i class="no-highlight">64</i>&nbsp;        makePayment.setBooking(booking);</b>
+<i class="no-highlight">65</i>&nbsp;
+<b class="nc"><i class="no-highlight">66</i>&nbsp;        log.debug(&quot;Total cost: &quot; + totalCost);</b>
+<b class="nc"><i class="no-highlight">67</i>&nbsp;        makePayment.setTotalPaymentAmount(totalCost);</b>
+<i class="no-highlight">68</i>&nbsp;
+<b class="nc"><i class="no-highlight">69</i>&nbsp;        log.debug(&quot;Payment: &quot; + makePayment);</b>
+<b class="nc"><i class="no-highlight">70</i>&nbsp;        booking.setPayment(makePayment);</b>
+<i class="no-highlight">71</i>&nbsp;
+<b class="nc"><i class="no-highlight">72</i>&nbsp;        paymentRepository.save(makePayment);</b>
+<b class="nc"><i class="no-highlight">73</i>&nbsp;        log.info(&quot;payment made successfully&quot; + makePayment);</b>
+<b class="nc"><i class="no-highlight">74</i>&nbsp;        return ResponseEntity.ok().body(&quot;payment made successfully&quot;);</b>
+<i class="no-highlight">75</i>&nbsp;    }
+<i class="no-highlight">76</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2022-05-23 00:36</div>
+</div>
+</body>
+</html>
