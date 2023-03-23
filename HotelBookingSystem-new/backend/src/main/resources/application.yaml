@@ -16,10 +16,15 @@ spring:
     database-platform: org.hibernate.dialect.MySQL5Dialect
   application:
     name: Hotel-Booking-System
+  main:
+    banner-mode: off
 
 logging:
   level:
     hotel.booking.system.backend: debug
+    root: info
+  file:
+    name: logs/hotel-booking-system-log.log
 
 server:
   port: 3030
