@@ -6,7 +6,7 @@ spring:
     password: root026
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -24,7 +24,7 @@ logging:
     hotel.booking.system.backend: debug
     root: info
   file:
-    name: logs/hotel-booking-system-admin-log.log
+    name: logs/hotel-booking-system-log.log
 
 server:
   port: 3030
